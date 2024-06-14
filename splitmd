@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markdown文件拆分工具</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+</style>
+</head>
+<body>
+    <input type="file" id="fileInput" accept=".md">
+    <button onclick="splitMarkdown()">拆分</button>
+    
+    <script>
+        function splitMarkdown() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('请先选择一个Markdown文件');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const sections = content.split(/^# /m);                
+                sections.forEach((section, index) => {
+                    if (index !== 0) {
+                        const title = section.substring(0, section.indexOf('\n')).trim();
+                        const fileName = `${title}.md`;
+                        downloadWithDelay(fileName, `# ${section}`, index);
+                    }
+                });
+                
+                alert('Markdown文件已拆分完毕');
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        function saveFile(fileName, content) {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
+            element.setAttribute('download', fileName);
+            
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            
+            element.click();
+            
+            document.body.removeChild(element);
+        }
+
+        function downloadWithDelay(fileName, content, index) {
+            setTimeout(() => {
+                saveFile(fileName, content);
+            }, index * 1000); // 1000 milliseconds = 1 second
+        }
+    </script>
+</body>
+</html>
